@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campedèl Admin</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── Login Screen ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <!-- Utensils SVG -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+      </svg>
+    </div>
+    <h1 class="login-title">Campedèl Admin</h1>
+    <p class="login-sub">Bitte anmelden um fortzufahren</p>
+    <div class="form-group" style="width:100%">
+      <label>Benutzername</label>
+      <input type="text" id="login-user" placeholder="admin" autocomplete="username"
+        onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()">
+    </div>
+    <div class="form-group" style="width:100%">
+      <label>Passwort</label>
+      <input type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:4px;padding:11px;justify-content:center" onclick="doLogin()">
+      Anmelden
+    </button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ── App ── -->
+<div id="app" style="display:none">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <!-- Sliding pill indicator -->
+      <div class="nav-pill" id="nav-pill"></div>
+
+      <!-- Logo -->
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+        </svg>
+      </div>
+
+      <nav class="nav">
+        <!-- Dashboard -->
+        <a class="nav-item active" data-page="dashboard" data-index="0" onclick="showPage('dashboard',this)" title="Dashboard">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </a>
+        <!-- Speisen -->
+        <a class="nav-item" data-page="menu" data-index="1" onclick="showPage('menu',this)" title="Speisen">
+          <svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+        </a>
+        <!-- Getraenke -->
+        <a class="nav-item" data-page="drinks" data-index="2" onclick="showPage('drinks',this)" title="Getränke">
+          <svg viewBox="0 0 24 24"><path d="M8 2h8l1 7H7L8 2Z"/><path d="M7 9c0 5.5 3 9 5 9s5-3.5 5-9"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+        </a>
+        <!-- Weine -->
+        <a class="nav-item" data-page="wines" data-index="3" onclick="showPage('wines',this)" title="Weine">
+          <svg viewBox="0 0 24 24"><path d="M8 2h8l2 9a6 6 0 0 1-12 0L8 2Z"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+        </a>
+        <!-- Benutzer -->
+        <a class="nav-item" data-page="users" data-index="4" onclick="showPage('users',this)" title="Benutzer">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </a>
+      </nav>
+
+      <!-- Footer: avatar + logout -->
+      <div class="sidebar-footer">
+        <div class="user-avatar" id="sidebar-avatar">A</div>
+        <button class="logout-btn" onclick="doLogout()" title="Abmelden">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="api-pill">
+          <div class="status-dot"></div>
+          <span>api.campedel.pokyh.com</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Dashboard ── -->
+    <div id="page-dashboard" class="page active">
+      <div class="dash-welcome">
+        <div>
+          <div class="dash-welcome-title">Willkommen, <span id="dash-username">Admin</span></div>
+          <div class="dash-welcome-sub">Campedèl-Hof &middot; Digitale Speisekarte</div>
+        </div>
+      </div>
+
+      <div class="dash-grid" id="dash-grid">
+        <!-- filled by JS -->
+      </div>
+
+      <div class="dash-bottom">
+        <div class="dash-section">
+          <div class="dash-section-title">Schnellzugriff</div>
+          <div class="quick-actions">
+            <button class="quick-btn" onclick="showPage('menu',document.querySelector('[data-page=menu]'));openItemModal('menu')">
+              <svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+              <span>Gericht hinzufügen</span>
+            </button>
+            <button class="quick-btn" onclick="showPage('drinks',document.querySelector('[data-page=drinks]'));openItemModal('drinks')">
+              <svg viewBox="0 0 24 24"><path d="M8 2h8l1 7H7L8 2Z"/><path d="M7 9c0 5.5 3 9 5 9s5-3.5 5-9"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+              <span>Getränk hinzufügen</span>
+            </button>
+            <button class="quick-btn" onclick="showPage('wines',document.querySelector('[data-page=wines]'));openItemModal('wines')">
+              <svg viewBox="0 0 24 24"><path d="M8 2h8l2 9a6 6 0 0 1-12 0L8 2Z"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+              <span>Wein hinzufügen</span>
+            </button>
+            <button class="quick-btn" onclick="showPage('menu',document.querySelector('[data-page=menu]'));openImportModal('menu')">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>JSON importieren</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="dash-section">
+          <div class="dash-section-title">API Endpunkte</div>
+          <div class="endpoint-list">
+            <div class="endpoint-row"><span class="method get">GET</span><code>/api/menu</code><span class="ep-desc">Speisekarte</span></div>
+            <div class="endpoint-row"><span class="method get">GET</span><code>/api/drinks</code><span class="ep-desc">Getränkekarte</span></div>
+            <div class="endpoint-row"><span class="method get">GET</span><code>/api/wines</code><span class="ep-desc">Weinkarte</span></div>
+            <div class="endpoint-row"><span class="method get">GET</span><code>/api/health</code><span class="ep-desc">Status</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Speisen ── -->
+    <div id="page-menu" class="page">
+      <div class="page-header">
+        <div class="stats-row" id="menu-stats"></div>
+        <div class="btn-group">
+          <button class="btn btn-ghost" onclick="openImportModal('menu')">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Import JSON
+          </button>
+          <button class="btn btn-primary" onclick="openItemModal('menu')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Gericht
+          </button>
+        </div>
+      </div>
+      <div class="section-tabs" id="menu-section-tabs"></div>
+      <div class="card">
+        <div class="table-toolbar">
+          <input class="search-input" placeholder="Suchen..." oninput="filterTable('menu-table', this.value)">
+          <button class="btn btn-sm btn-ghost" onclick="openSectionModal('menu')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Kategorie
+          </button>
+        </div>
+        <table class="data-table" id="menu-table">
+          <thead>
+            <tr>
+              <th style="width:240px">Gericht</th>
+              <th>Kategorie</th><th>Preis</th><th>Allergene</th><th>Flags</th>
+              <th style="width:90px">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="menu-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Getränke ── -->
+    <div id="page-drinks" class="page">
+      <div class="page-header">
+        <div class="stats-row" id="drinks-stats"></div>
+        <div class="btn-group">
+          <button class="btn btn-ghost" onclick="openImportModal('drinks')">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Import JSON
+          </button>
+          <button class="btn btn-primary" onclick="openItemModal('drinks')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Getränk
+          </button>
+        </div>
+      </div>
+      <div class="section-tabs" id="drinks-section-tabs"></div>
+      <div class="card">
+        <div class="table-toolbar">
+          <input class="search-input" placeholder="Suchen..." oninput="filterTable('drinks-table', this.value)">
+          <button class="btn btn-sm btn-ghost" onclick="openSectionModal('drinks')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Kategorie
+          </button>
+        </div>
+        <table class="data-table" id="drinks-table">
+          <thead>
+            <tr>
+              <th style="width:240px">Getränk</th>
+              <th>IT</th><th>Kategorie</th><th>Preise</th>
+              <th style="width:90px">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="drinks-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Weine ── -->
+    <div id="page-wines" class="page">
+      <div class="page-header">
+        <div class="stats-row" id="wines-stats"></div>
+        <div class="btn-group">
+          <button class="btn btn-ghost" onclick="openImportModal('wines')">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Import JSON
+          </button>
+          <button class="btn btn-primary" onclick="openItemModal('wines')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Wein
+          </button>
+        </div>
+      </div>
+      <div class="section-tabs" id="wines-section-tabs"></div>
+      <div class="card">
+        <div class="table-toolbar">
+          <input class="search-input" placeholder="Suchen..." oninput="filterTable('wines-table', this.value)">
+          <button class="btn btn-sm btn-ghost" onclick="openSectionModal('wines')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Kategorie
+          </button>
+        </div>
+        <table class="data-table" id="wines-table">
+          <thead>
+            <tr>
+              <th style="width:240px">Wein</th>
+              <th>Weingut</th><th>Kategorie</th><th>Flasche</th><th>Glas</th>
+              <th style="width:90px">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="wines-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Benutzer ── -->
+    <div id="page-users" class="page">
+      <div class="page-header">
+        <div class="stats-row" id="users-stats"></div>
+        <button class="btn btn-primary" onclick="openUserModal()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Benutzer
+        </button>
+      </div>
+      <div class="card">
+        <table class="data-table" id="users-table">
+          <thead>
+            <tr>
+              <th>Benutzer</th><th>Rolle</th><th>Erstellt am</th>
+              <th style="width:120px">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── Item Modal ── -->
+<div class="modal-overlay" id="item-modal-overlay" onclick="closeItemModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="item-modal-title">Eintrag bearbeiten</h3>
+      <button class="modal-close" onclick="closeItemModal()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="item-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeItemModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveItem()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Import Modal ── -->
+<div class="modal-overlay" id="import-modal-overlay" onclick="closeImportModal()">
+  <div class="modal modal-sm" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="import-modal-title">JSON Import</h3>
+      <button class="modal-close" onclick="closeImportModal()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text2);font-size:13px">Bestehende Einträge werden überschrieben (INSERT OR REPLACE).</p>
+      <div class="form-group">
+        <label>Datei wählen (.json)</label>
+        <label class="upload-file-label">
+          <span id="import-file-name">Keine Datei gewählt</span>
+          <input type="file" accept=".json" id="import-file-input" hidden onchange="onImportFileChange(this)">
+          <span class="btn btn-sm btn-ghost" style="margin-left:auto;flex-shrink:0">Durchsuchen</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label>Oder JSON direkt einfügen</label>
+        <textarea class="json-textarea" id="import-json-text" placeholder='{ "sections": [...] }'></textarea>
+      </div>
+      <div class="import-status" id="import-modal-status"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeImportModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="doImport()">Importieren</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section Modal ── -->
+<div class="modal-overlay" id="section-modal-overlay" onclick="closeSectionModal()">
+  <div class="modal modal-sm" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="section-modal-title">Neue Kategorie</h3>
+      <button class="modal-close" onclick="closeSectionModal()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="section-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeSectionModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveSection()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── User Modal ── -->
+<div class="modal-overlay" id="user-modal-overlay" onclick="closeUserModal()">
+  <div class="modal modal-sm" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="user-modal-title">Neuer Benutzer</h3>
+      <button class="modal-close" onclick="closeUserModal()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="user-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeUserModal()">Abbrechen</button>
+      <button class="btn btn-primary" id="user-modal-save" onclick="saveUser()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

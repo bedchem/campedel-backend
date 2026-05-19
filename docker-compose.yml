@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  campedel-backend:
+    build: .
+    container_name: campedel-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      BASE_URL: https://api.campedel.pokyh.com
+      UPLOAD_DIR: /app/data/uploads
+    volumes:
+      - campedel-data:/app/data
+
+volumes:
+  campedel-data:
