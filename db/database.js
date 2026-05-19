@@ -12,6 +12,7 @@ function getDb() {
     db.exec('PRAGMA journal_mode = WAL');
     db.exec('PRAGMA foreign_keys = ON');
     initSchema();
+    migrateSchema();
     seedDefaultAdmin();
   }
   return db;
@@ -29,6 +30,10 @@ function seedDefaultAdmin() {
     db.prepare('INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)').run('admin', hash, 'admin');
     console.log('Default admin created: admin / campedel2024');
   }
+}
+
+function migrateSchema() {
+  try { db.exec('ALTER TABLE wine_items ADD COLUMN description_en TEXT DEFAULT ""'); } catch (_) {}
 }
 
 function initSchema() {

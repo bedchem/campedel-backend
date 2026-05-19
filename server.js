@@ -51,7 +51,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Serve uploaded images
 const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-app.use('/uploads', express.static(path.resolve(UPLOAD_DIR)));
+app.use('/uploads', express.static(path.resolve(UPLOAD_DIR), {
+  maxAge: '7d',
+  immutable: false,
+}));
 
 // Serve admin dashboard
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));

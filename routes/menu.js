@@ -9,6 +9,7 @@ const toItem = item => ({
 
 // GET /api/menu — app-format
 router.get('/', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=30');
   const db = getDb();
   const sections = db.prepare('SELECT * FROM menu_sections ORDER BY sort_order').all();
   const items = db.prepare('SELECT * FROM menu_items ORDER BY sort_order');

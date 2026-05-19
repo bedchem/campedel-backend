@@ -590,6 +590,7 @@ function buildWinesForm(item) {
     </div>
     <div class="form-group"><label>Beschreibung DE</label><textarea id="f-desc-de">${esc(item?.description_de||'')}</textarea></div>
     <div class="form-group"><label>Beschreibung IT</label><textarea id="f-desc-it">${esc(item?.description_it||'')}</textarea></div>
+    <div class="form-group"><label>Beschreibung EN</label><textarea id="f-desc-en">${esc(item?.description_en||'')}</textarea></div>
     <div class="form-row-3">
       <div class="form-group"><label>Flasche €</label><input type="number" id="f-bottle" value="${item?.price_bottle??''}" step="0.50"></div>
       <div class="form-group"><label>Glas €</label><input type="number" id="f-glass" value="${item?.price_glass??''}" step="0.50"></div>
@@ -654,7 +655,7 @@ async function saveItem() {
       name: v('f-name'), winery: v('f-winery'), region: v('f-region'),
       doc: v('f-doc'), dryness: v('f-dryness'),
       grapes: gStr ? gStr.split(',').map(g=>g.trim()).filter(Boolean) : [],
-      description_de: v('f-desc-de'), description_it: v('f-desc-it'),
+      description_de: v('f-desc-de'), description_it: v('f-desc-it'), description_en: v('f-desc-en'),
       price_bottle: num('f-bottle'), price_glass: num('f-glass'), price_carafe: num('f-carafe'),
       image_url: v('f-image-url') || null,
     };

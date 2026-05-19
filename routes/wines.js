@@ -4,6 +4,7 @@ const { getDb } = require('../db/database');
 
 // GET /api/wines — full wine list for the app
 router.get('/', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=30');
   const db = getDb();
   const sections = db.prepare('SELECT * FROM wine_sections ORDER BY sort_order').all();
   const result = sections.map(s => ({
@@ -17,7 +18,7 @@ router.get('/', (req, res) => {
       doc: w.doc,
       dryness: w.dryness,
       grapes: JSON.parse(w.grapes || '[]'),
-      description: { de: w.description_de, it: w.description_it },
+      description: { de: w.description_de, it: w.description_it, en: w.description_en || '' },
       prices: {
         ...(w.price_bottle != null ? { bottle: w.price_bottle } : {}),
         ...(w.price_glass != null ? { glass: w.price_glass } : {}),
@@ -71,12 +72,12 @@ router.get('/items', (req, res) => {
 router.post('/items', (req, res) => {
   const db = getDb();
   const { id, section_id, name, winery, region, doc, dryness, grapes,
-    description_de, description_it, price_bottle, price_glass, price_carafe, image_url, sort_order } = req.body;
+    description_de, description_it, description_en, price_bottle, price_glass, price_carafe, image_url, sort_order } = req.body;
   if (!id || !section_id || !name) return res.status(400).json({ error: 'id, section_id and name required' });
-  db.prepare(`INSERT INTO wine_items (id,section_id,name,winery,region,doc,dryness,grapes,description_de,description_it,price_bottle,price_glass,price_carafe,image_url,sort_order)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+  db.prepare(`INSERT INTO wine_items (id,section_id,name,winery,region,doc,dryness,grapes,description_de,description_it,description_en,price_bottle,price_glass,price_carafe,image_url,sort_order)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
     .run(id, section_id, name, winery || '', region || '', doc || '', dryness || '',
-      JSON.stringify(grapes || []), description_de || '', description_it || '',
+      JSON.stringify(grapes || []), description_de || '', description_it || '', description_en || '',
       price_bottle ?? null, price_glass ?? null, price_carafe ?? null, image_url || null, sort_order || 0);
   res.json({ ok: true });
 });
@@ -84,11 +85,11 @@ router.post('/items', (req, res) => {
 // PUT /api/wines/items/:id
 router.put('/items/:id', (req, res) => {
   const { section_id, name, winery, region, doc, dryness, grapes,
-    description_de, description_it, price_bottle, price_glass, price_carafe, image_url, sort_order } = req.body;
-  getDb().prepare(`UPDATE wine_items SET section_id=?,name=?,winery=?,region=?,doc=?,dryness=?,grapes=?,description_de=?,description_it=?,
+    description_de, description_it, description_en, price_bottle, price_glass, price_carafe, image_url, sort_order } = req.body;
+  getDb().prepare(`UPDATE wine_items SET section_id=?,name=?,winery=?,region=?,doc=?,dryness=?,grapes=?,description_de=?,description_it=?,description_en=?,
     price_bottle=?,price_glass=?,price_carafe=?,image_url=?,sort_order=? WHERE id=?`)
     .run(section_id, name, winery || '', region || '', doc || '', dryness || '',
-      JSON.stringify(grapes || []), description_de || '', description_it || '',
+      JSON.stringify(grapes || []), description_de || '', description_it || '', description_en || '',
       price_bottle ?? null, price_glass ?? null, price_carafe ?? null, image_url || null, sort_order || 0, req.params.id);
   res.json({ ok: true });
 });

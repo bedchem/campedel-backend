@@ -4,6 +4,7 @@ const { getDb } = require('../db/database');
 
 // GET /api/drinks — full drink list for the app
 router.get('/', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=30');
   const db = getDb();
   const sections = db.prepare('SELECT * FROM drink_sections ORDER BY sort_order').all();
   const result = sections.map(s => ({
