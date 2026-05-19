@@ -1,5 +1,41 @@
+# Dependencies
 node_modules/
+
+# Environment & Secrets
 .env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Uploaded files (keep directory via .gitkeep)
 uploads/*
 !uploads/.gitkeep
-*.db
+
+# Cloudflare Tunnel
+data/cf.log
+data/tunnel.token
+cf.log
+tunnel.token
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build artifacts
+dist/
+build/
+
+# Claude AI config
+.claude/
+CLAUDE.md

@@ -3,9 +3,45 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Security headers (CSP disabled so admin dashboard JS works)
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
+
+// Rate limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Zu viele Anfragen, bitte später erneut versuchen.' },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Zu viele Anmeldeversuche, bitte in 15 Minuten erneut versuchen.' },
+  skipSuccessfulRequests: true,
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Upload-Limit erreicht, bitte in einer Stunde erneut versuchen.' },
+});
+
+app.use(globalLimiter);
 
 // Middleware
 app.use(cors({ origin: '*' }));
@@ -22,14 +58,15 @@ app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html')));
 
 // API routes
-app.use('/api/auth', require('./routes/auth'));
+app.use('/api/auth', authLimiter, require('./routes/auth'));
 app.use('/api/menu', require('./routes/menu'));
 app.use('/api/drinks', require('./routes/drinks'));
 app.use('/api/wines', require('./routes/wines'));
 app.use('/api/import', require('./routes/importData'));
-app.use('/api/upload', require('./routes/upload'));
+app.use('/api/upload', uploadLimiter, require('./routes/upload'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/stats', require('./routes/stats'));
+app.use('/api/tunnel', require('./routes/tunnel'));
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ ok: true, version: '1.0.0' }));

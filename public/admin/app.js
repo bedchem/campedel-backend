@@ -10,7 +10,7 @@ const ALLERGEN_LABELS = {
 
 const PAGE_TITLES = {
   dashboard: 'Dashboard', menu: 'Speisen',
-  drinks: 'Getränke', wines: 'Weine', users: 'Benutzer',
+  drinks: 'Getränke', wines: 'Weine', users: 'Benutzer', settings: 'Einstellungen',
 };
 
 // ── State ────────────────────────────────────────────────────
@@ -125,6 +125,7 @@ function showPage(page, navEl) {
   document.getElementById('page-title').textContent = PAGE_TITLES[page] || page;
   if (page === 'users') loadUsers();
   if (page === 'dashboard') loadDashboard();
+  if (page === 'settings') loadSettings();
 }
 
 // ── Data Loading ─────────────────────────────────────────────
@@ -261,19 +262,19 @@ function renderMenuTable() {
     const allergens = Array.isArray(item.allergens) ? item.allergens : [];
     return `<tr>
       <td><div class="item-cell">
-        ${item.image_url ? `<img src="${item.image_url}" class="thumb">` : `<div class="thumb-placeholder">🍽️</div>`}
+        ${item.image_url ? `<img src="${item.image_url}" class="thumb">` : `<div class="thumb-placeholder"><svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>`}
         <div><div class="item-name">${esc(item.name_de)}</div><div class="item-sub">${esc(item.name_it||'')}</div></div>
       </div></td>
       <td><span class="tag">${esc(section?.category_key||item.section_id)}</span></td>
       <td class="price">€ ${Number(item.price).toFixed(2)}</td>
       <td>${allergens.map(a=>`<span class="tag">${ALLERGEN_LABELS[a]||a}</span>`).join('')}</td>
       <td>
-        ${item.is_vegetarian?'<span class="tag tag-green">🌿</span>':''}
-        ${item.is_vegan?'<span class="tag tag-green">🌱</span>':''}
+        ${item.is_vegetarian?'<span class="tag tag-green" title="Vegetarisch"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:middle"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span>':''}
+        ${item.is_vegan?'<span class="tag tag-green" title="Vegan"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:middle"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 1 1.8 8 10 10 0 0 1-3.1.9 7.7 7.7 0 0 1-.9-6.1 8 8 0 0 1 2.2-2.8z"/></svg></span>':''}
       </td>
       <td><div class="btn-actions">
-        <button class="btn btn-sm btn-ghost" onclick="editItem('menu','${item.id}')">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteItem('menu','items','${item.id}',loadMenu)">🗑️</button>
+        <button class="btn btn-sm btn-ghost" onclick="editItem('menu','${item.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteItem('menu','items','${item.id}',loadMenu)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -291,15 +292,15 @@ function renderDrinksTable() {
     const priceStr = prices.map(p => p.amount ? `${p.amount} €${Number(p.price).toFixed(2)}` : `€${Number(p.price).toFixed(2)}`).join(' · ');
     return `<tr>
       <td><div class="item-cell">
-        ${item.image_url ? `<img src="${item.image_url}" class="thumb">` : `<div class="thumb-placeholder">🥂</div>`}
+        ${item.image_url ? `<img src="${item.image_url}" class="thumb">` : `<div class="thumb-placeholder"><svg viewBox="0 0 24 24"><path d="M8 2h8l1 7H7L8 2Z"/><path d="M7 9c0 5.5 3 9 5 9s5-3.5 5-9"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></div>`}
         <div><div class="item-name">${esc(item.name_de)}</div><div class="item-sub">${esc(item.name_en||'')}</div></div>
       </div></td>
       <td style="color:var(--text2)">${esc(item.name_it||'')}</td>
       <td><span class="tag">${esc(section?.category_key||item.section_id)}</span></td>
       <td class="price" style="font-size:12px">${priceStr}</td>
       <td><div class="btn-actions">
-        <button class="btn btn-sm btn-ghost" onclick="editItem('drinks','${item.id}')">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteItem('drinks','items','${item.id}',loadDrinks)">🗑️</button>
+        <button class="btn btn-sm btn-ghost" onclick="editItem('drinks','${item.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteItem('drinks','items','${item.id}',loadDrinks)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -315,7 +316,7 @@ function renderWinesTable() {
     const section = state.wines.sections.find(s => s.id === item.section_id);
     return `<tr>
       <td><div class="item-cell">
-        ${item.image_url ? `<img src="${item.image_url}" class="thumb">` : `<div class="thumb-placeholder">🍷</div>`}
+        ${item.image_url ? `<img src="${item.image_url}" class="thumb">` : `<div class="thumb-placeholder"><svg viewBox="0 0 24 24"><path d="M8 2h8l2 9a6 6 0 0 1-12 0L8 2Z"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></div>`}
         <div><div class="item-name">${esc(item.name)}</div><div class="item-sub">${esc(item.region||'')}</div></div>
       </div></td>
       <td style="color:var(--text2)">${esc(item.winery||'')}</td>
@@ -323,8 +324,8 @@ function renderWinesTable() {
       <td class="price">${item.price_bottle!=null ? '€ '+Number(item.price_bottle).toFixed(2) : '—'}</td>
       <td class="price">${item.price_glass!=null ? '€ '+Number(item.price_glass).toFixed(2) : '—'}</td>
       <td><div class="btn-actions">
-        <button class="btn btn-sm btn-ghost" onclick="editItem('wines','${item.id}')">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteItem('wines','items','${item.id}',loadWines)">🗑️</button>
+        <button class="btn btn-sm btn-ghost" onclick="editItem('wines','${item.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteItem('wines','items','${item.id}',loadWines)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -350,8 +351,8 @@ function renderUsersTable() {
       <td><span class="role-badge">${esc(u.role)}</span></td>
       <td style="color:var(--text2);font-size:13px">${created}</td>
       <td><div class="btn-actions">
-        <button class="btn btn-sm btn-ghost" onclick="openChangePasswordModal(${u.id},'${esc(u.username)}')">🔑</button>
-        ${!isSelf ? `<button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id},'${esc(u.username)}')">🗑️</button>` : ''}
+        <button class="btn btn-sm btn-ghost" onclick="openChangePasswordModal(${u.id},'${esc(u.username)}')"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5l3 3L22 7l-3-3"/></svg></button>
+        ${!isSelf ? `<button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id},'${esc(u.username)}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>` : ''}
       </div></td>
     </tr>`;
   }).join('');
@@ -388,7 +389,7 @@ function openUserModal() {
 
 function openChangePasswordModal(id, username) {
   userCtx = { mode: 'password', id };
-  document.getElementById('user-modal-title').textContent = `🔑 Passwort — ${username}`;
+  document.getElementById('user-modal-title').innerHTML = `<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:text-bottom;margin-right:5px"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5l3 3L22 7l-3-3"/></svg>Passwort — ${esc(username)}`;
   document.getElementById('user-modal-body').innerHTML = `
     <div class="form-group">
       <label>Neues Passwort (mind. 6 Zeichen)</label>
@@ -457,7 +458,9 @@ function openItemModal(type, existing = null) {
   itemCtx = { type, existing };
   const label = type === 'menu' ? 'Gericht' : type === 'drinks' ? 'Getränk' : 'Wein';
   const name = existing ? (type === 'wines' ? existing.name : existing.name_de) : null;
-  document.getElementById('item-modal-title').textContent = name ? `✏️ ${name}` : `+ Neues ${label}`;
+  document.getElementById('item-modal-title').innerHTML = name
+    ? `<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:text-bottom;margin-right:5px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>${esc(name)}`
+    : `+ Neues ${label}`;
 
   let html = '';
   if (type === 'menu') html = buildMenuForm(existing);
@@ -532,7 +535,7 @@ function buildDrinksForm(item) {
     <div class="price-row">
       <input type="text" placeholder="Menge (z.B. 0,25l)" value="${esc(p.amount||'')}" class="price-amount">
       <input type="number" placeholder="€" value="${p.price||''}" step="0.10" min="0" class="price-val">
-      <button type="button" class="remove-price" onclick="removePriceRow(this)">✕</button>
+      <button type="button" class="remove-price" onclick="removePriceRow(this)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>`).join('');
   return `
     <div class="form-row">
@@ -590,14 +593,14 @@ function buildWinesForm(item) {
 function buildImageField(imageUrl) {
   const preview = imageUrl
     ? `<img src="${imageUrl}" class="modal-img-preview" id="img-preview">`
-    : `<div class="modal-img-placeholder" id="img-preview">🖼️</div>`;
+    : `<div class="modal-img-placeholder" id="img-preview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
   return `
     <div class="form-group img-upload-section"><label>Bild</label>
       <div class="img-preview-row">
         ${preview}
         <div class="img-url-group">
           <input type="text" id="f-image-url" value="${imageUrl||''}" placeholder="https://...">
-          <label class="upload-btn-label">🖼️ Hochladen
+          <label class="upload-btn-label"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Hochladen
             <input type="file" accept="image/*" hidden onchange="uploadImageInModal(this)">
           </label>
           <span class="upload-progress-text" id="upload-status"></span>
@@ -691,7 +694,7 @@ async function uploadImageInModal(input) {
 function addPriceRow() {
   const div = document.createElement('div');
   div.className = 'price-row';
-  div.innerHTML = `<input type="text" placeholder="Menge" class="price-amount"><input type="number" placeholder="€" step="0.10" min="0" class="price-val"><button type="button" class="remove-price" onclick="removePriceRow(this)">✕</button>`;
+  div.innerHTML = `<input type="text" placeholder="Menge" class="price-amount"><input type="number" placeholder="€" step="0.10" min="0" class="price-val"><button type="button" class="remove-price" onclick="removePriceRow(this)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
   document.getElementById('prices-list').appendChild(div);
 }
 
@@ -714,8 +717,8 @@ async function deleteItem(type, collection, id, reload) {
 // ── Import Modal ─────────────────────────────────────────────
 function openImportModal(type) {
   importCtx = { type };
-  document.getElementById('import-modal-title').textContent =
-    `📥 Import — ${{menu:'Speisen',drinks:'Getränke',wines:'Weine'}[type]}`;
+  document.getElementById('import-modal-title').innerHTML =
+    `<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:text-bottom;margin-right:5px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Import — ${{menu:'Speisen',drinks:'Getränke',wines:'Weine'}[type]}`;
   document.getElementById('import-file-name').textContent = 'Keine Datei gewählt';
   document.getElementById('import-json-text').value = '';
   document.getElementById('import-modal-status').textContent = '';
@@ -831,6 +834,212 @@ async function apiFetch(path, opts = {}) {
 function esc(str) {
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Settings & Tunnel Wizard ────────────────────────────────
+let _wizLoginPoll = null;
+
+function loadSettings() {
+  document.getElementById('settings-api-url').textContent = window.location.origin + '/api';
+  document.getElementById('settings-admin-url').textContent = window.location.origin + '/admin';
+  refreshTunnelStatus();
+}
+
+async function refreshTunnelStatus() {
+  try {
+    const r = await apiFetch('/api/tunnel/status');
+    _applyWizardState(r);
+  } catch (e) {
+    _wizSetStep(1, 'err', 'API nicht erreichbar');
+    _wizSetStep(2, 'locked', '');
+    _wizSetStep(3, 'locked', '');
+  }
+}
+
+const _WIZ_ICONS = {
+  done:    `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="rgba(34,197,94,0.12)" stroke="var(--green)"/><polyline points="7 12 10.5 15.5 17 9" stroke="var(--green)"/></svg>`,
+  pending: `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke="var(--accent-dark)"/></svg>`,
+  waiting: `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke="#f59e0b"/><polyline points="12 7 12 12 15.5 14" stroke="#f59e0b"/></svg>`,
+  locked:  `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke="var(--text3)"/></svg>`,
+  err:     `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke="var(--red)"/><line x1="8" y1="8" x2="16" y2="16" stroke="var(--red)"/><line x1="16" y1="8" x2="8" y2="16" stroke="var(--red)"/></svg>`,
+};
+
+function _wizSetStep(num, state, desc) {
+  const icon  = document.getElementById(`wiz-icon-${num}`);
+  const descEl = document.getElementById(`wiz-desc-${num}`);
+  if (icon)   icon.innerHTML = _WIZ_ICONS[state] || _WIZ_ICONS.locked;
+  if (descEl) descEl.textContent = desc;
+}
+
+function _wizShowBtn(num, visible) {
+  const btn = document.getElementById(`wiz-btn-${num}`);
+  if (btn) btn.style.display = visible ? '' : 'none';
+}
+
+function _wizShow(id, visible) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = visible ? '' : 'none';
+}
+
+function _applyWizardState(r) {
+  // Step 1: installed?
+  if (r.installed) {
+    _wizSetStep(1, 'done', 'cloudflared ist installiert und bereit.');
+    _wizShowBtn(1, false);
+  } else {
+    _wizSetStep(1, 'pending', 'cloudflared ist nicht installiert.');
+    _wizShowBtn(1, true);
+  }
+
+  // Step 2: authenticated?
+  if (r.authenticated) {
+    _wizSetStep(2, 'done', 'Bereits mit deinem Cloudflare-Account verbunden.');
+    _wizShowBtn(2, false);
+    _wizShow('wiz-auth-box', false);
+    _wizStopLoginPoll();
+  } else if (r.loginUrl) {
+    _wizSetStep(2, 'waiting', 'Warte auf Browser-Bestätigung...');
+    _wizShowBtn(2, false);
+    const el = document.getElementById('wiz-auth-url');
+    el.textContent = r.loginUrl;
+    el.href = r.loginUrl;
+    _wizShow('wiz-auth-box', true);
+    _wizStartLoginPoll();
+  } else if (r.installed) {
+    _wizSetStep(2, 'pending', 'Noch nicht mit Cloudflare verbunden.');
+    _wizShowBtn(2, true);
+    _wizShow('wiz-auth-box', false);
+  } else {
+    _wizSetStep(2, 'locked', '');
+    _wizShowBtn(2, false);
+    _wizShow('wiz-auth-box', false);
+  }
+
+  // Step 3: configured & running?
+  const tunnelUrl = r.url || (r.hostname ? `https://${r.hostname}` : null);
+  if (r.configured && r.running) {
+    _wizSetStep(3, 'done', 'Tunnel ist aktiv' + (tunnelUrl ? ':' : '.'));
+    const linkEl = document.getElementById('wiz-tunnel-url');
+    if (tunnelUrl && linkEl) {
+      linkEl.textContent = tunnelUrl;
+      linkEl.href = tunnelUrl;
+      linkEl.style.display = '';
+    }
+    _wizShow('wiz-configure-row', false);
+    _wizShow('wiz-reconfigure-row', true);
+    if (r.hostname) document.getElementById('wiz-reconfigure-hostname').value = r.hostname;
+  } else if (r.configured) {
+    _wizSetStep(3, 'waiting', 'Tunnel startet...' + (r.hostname ? ` (${r.hostname})` : ''));
+    _wizShow('wiz-configure-row', false);
+    _wizShow('wiz-reconfigure-row', true);
+    const linkEl = document.getElementById('wiz-tunnel-url');
+    if (linkEl) linkEl.style.display = 'none';
+    if (r.hostname) document.getElementById('wiz-reconfigure-hostname').value = r.hostname;
+  } else if (r.authenticated) {
+    _wizSetStep(3, 'pending', 'Hostname eingeben um Tunnel einzurichten.');
+    _wizShow('wiz-configure-row', true);
+    _wizShow('wiz-reconfigure-row', false);
+    const linkEl = document.getElementById('wiz-tunnel-url');
+    if (linkEl) linkEl.style.display = 'none';
+  } else {
+    _wizSetStep(3, 'locked', '');
+    _wizShow('wiz-configure-row', false);
+    _wizShow('wiz-reconfigure-row', false);
+    const linkEl = document.getElementById('wiz-tunnel-url');
+    if (linkEl) linkEl.style.display = 'none';
+  }
+
+  // Quick tunnel info (no account needed, URL shown as bonus)
+  if (r.mode === 'quick' && r.url && !r.configured) {
+    _wizSetStep(3, 'waiting', `Quick Tunnel aktiv: ${r.url}`);
+  }
+}
+
+function _wizStartLoginPoll() {
+  if (_wizLoginPoll) return;
+  _wizLoginPoll = setInterval(async () => {
+    try {
+      const r = await apiFetch('/api/tunnel/login-check');
+      if (r.done) {
+        _wizStopLoginPoll();
+        refreshTunnelStatus();
+      } else if (r.loginUrl) {
+        const el = document.getElementById('wiz-auth-url');
+        el.textContent = r.loginUrl;
+        el.href = r.loginUrl;
+        _wizShow('wiz-auth-box', true);
+      }
+    } catch {}
+  }, 3000);
+}
+
+function _wizStopLoginPoll() {
+  if (_wizLoginPoll) { clearInterval(_wizLoginPoll); _wizLoginPoll = null; }
+}
+
+async function wizInstall() {
+  _wizSetStep(1, 'waiting', 'Installiere cloudflared...');
+  _wizShowBtn(1, false);
+  try {
+    await apiFetch('/api/tunnel/install', { method: 'POST', body: {} });
+    toast('cloudflared installiert!', 'ok');
+    refreshTunnelStatus();
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'err');
+    _wizSetStep(1, 'err', e.message);
+    _wizShowBtn(1, true);
+  }
+}
+
+async function wizLogin() {
+  _wizSetStep(2, 'waiting', 'Starte Login-Prozess...');
+  _wizShowBtn(2, false);
+  try {
+    const r = await apiFetch('/api/tunnel/login', { method: 'POST', body: {} });
+    if (r.already) { refreshTunnelStatus(); return; }
+    if (r.loginUrl) {
+      const el = document.getElementById('wiz-auth-url');
+      el.textContent = r.loginUrl;
+      el.href = r.loginUrl;
+      _wizShow('wiz-auth-box', true);
+      _wizSetStep(2, 'waiting', 'Warte auf Browser-Bestätigung...');
+    } else {
+      _wizSetStep(2, 'waiting', 'Login gestartet — URL erscheint gleich...');
+    }
+    _wizStartLoginPoll();
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'err');
+    _wizSetStep(2, 'err', e.message);
+    _wizShowBtn(2, true);
+  }
+}
+
+async function wizConfigure() {
+  const hostname = document.getElementById('wiz-hostname').value.trim();
+  if (!hostname) { toast('Bitte Hostname eingeben', 'err'); return; }
+  _wizSetStep(3, 'waiting', 'Konfiguriere Tunnel...');
+  _wizShow('wiz-configure-row', false);
+  try {
+    const r = await apiFetch('/api/tunnel/configure', { method: 'POST', body: { hostname } });
+    toast(r.dnsOk ? 'Tunnel konfiguriert!' : 'Tunnel konfiguriert (DNS bitte manuell prüfen)', 'ok');
+    refreshTunnelStatus();
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'err');
+    _wizSetStep(3, 'err', e.message);
+    _wizShow('wiz-configure-row', true);
+  }
+}
+
+async function wizReconfigure() {
+  const hostname = document.getElementById('wiz-reconfigure-hostname').value.trim();
+  if (!hostname) { toast('Bitte Hostname eingeben', 'err'); return; }
+  try {
+    const r = await apiFetch('/api/tunnel/reconfigure', { method: 'POST', body: { hostname } });
+    toast(r.dnsOk ? 'Tunnel neu konfiguriert!' : 'Konfiguriert (DNS bitte prüfen)', 'ok');
+    refreshTunnelStatus();
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'err');
+  }
 }
 
 function toast(msg, type = 'ok') {

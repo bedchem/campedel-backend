@@ -73,6 +73,10 @@
         <a class="nav-item" data-page="users" data-index="4" onclick="showPage('users',this)" title="Benutzer">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
         </a>
+        <!-- Einstellungen -->
+        <a class="nav-item" data-page="settings" data-index="5" onclick="showPage('settings',this)" title="Einstellungen">
+          <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </a>
       </nav>
 
       <!-- Footer: avatar + logout -->
@@ -275,6 +279,110 @@
           </thead>
           <tbody id="users-tbody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ── Einstellungen ── -->
+    <div id="page-settings" class="page">
+      <div class="settings-grid">
+
+        <!-- Cloudflare Tunnel Wizard -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="settings-card-title">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              Cloudflare Tunnel
+            </div>
+            <button class="btn btn-sm btn-ghost" onclick="refreshTunnelStatus()">
+              <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Aktualisieren
+            </button>
+          </div>
+
+          <!-- Setup wizard steps -->
+          <div class="wizard-steps">
+            <div class="wizard-step">
+              <div class="wizard-step-icon" id="wiz-icon-1"></div>
+              <div class="wizard-step-body">
+                <div class="wizard-step-title">cloudflared installieren</div>
+                <div class="wizard-step-desc" id="wiz-desc-1">Prüfe...</div>
+              </div>
+              <button class="btn btn-sm btn-primary" id="wiz-btn-1" style="display:none;align-self:center;flex-shrink:0" onclick="wizInstall()">Installieren</button>
+            </div>
+            <div class="wizard-step">
+              <div class="wizard-step-icon" id="wiz-icon-2"></div>
+              <div class="wizard-step-body">
+                <div class="wizard-step-title">Mit Cloudflare verbinden</div>
+                <div class="wizard-step-desc" id="wiz-desc-2">Warte...</div>
+              </div>
+              <button class="btn btn-sm btn-primary" id="wiz-btn-2" style="display:none;align-self:center;flex-shrink:0" onclick="wizLogin()">Anmelden</button>
+            </div>
+            <div class="wizard-step" style="padding-bottom:6px">
+              <div class="wizard-step-icon" id="wiz-icon-3"></div>
+              <div class="wizard-step-body">
+                <div class="wizard-step-title">Tunnel konfiguriert</div>
+                <div class="wizard-step-desc" id="wiz-desc-3">Kein Tunnel konfiguriert</div>
+                <a id="wiz-tunnel-url" href="#" target="_blank" rel="noopener" style="display:none;font-size:12px;color:var(--accent-dark);font-weight:600;margin-top:2px"></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Browser auth URL (shown during login) -->
+          <div id="wiz-auth-box" style="display:none" class="tunnel-info-box">
+            <div style="font-size:12px;font-weight:700;margin-bottom:5px">Browser-Authentifizierung</div>
+            <div style="font-size:11.5px;color:var(--text2);margin-bottom:6px">Öffne diesen Link und melde dich mit deinem Cloudflare-Account an:</div>
+            <a id="wiz-auth-url" href="#" target="_blank" rel="noopener" style="font-size:11px;word-break:break-all;color:var(--accent-dark);line-height:1.5"></a>
+            <div style="font-size:11px;color:var(--text3);margin-top:6px">Warte auf Bestätigung im Browser...</div>
+          </div>
+
+          <!-- Hostname input for first-time setup -->
+          <div id="wiz-configure-row" style="display:none" class="form-group">
+            <label>Hostname</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="wiz-hostname" placeholder="api.yourdomain.com" style="flex:1">
+              <button class="btn btn-primary" onclick="wizConfigure()">Tunnel einrichten</button>
+            </div>
+            <span style="font-size:11px;color:var(--text2);margin-top:2px;display:block">Domain muss in Cloudflare als Nameserver eingetragen sein.</span>
+          </div>
+
+          <!-- Hostname input for reconfiguration -->
+          <div id="wiz-reconfigure-row" style="display:none" class="form-group">
+            <label>Hostname ändern</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="wiz-reconfigure-hostname" placeholder="api.yourdomain.com" style="flex:1">
+              <button class="btn btn-ghost" onclick="wizReconfigure()">Neu konfigurieren</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Server Info -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="settings-card-title">
+              <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+              Server Info
+            </div>
+          </div>
+          <div class="settings-info-list">
+            <div class="settings-info-row">
+              <span class="settings-info-label">API URL</span>
+              <code id="settings-api-url" style="font-size:12px;color:var(--text)"></code>
+            </div>
+            <div class="settings-info-row">
+              <span class="settings-info-label">Admin Dashboard</span>
+              <code id="settings-admin-url" style="font-size:12px;color:var(--text)"></code>
+            </div>
+            <div class="settings-info-row">
+              <span class="settings-info-label">Rate Limiting</span>
+              <span style="font-size:12px;color:var(--green);font-weight:600">Aktiv</span>
+            </div>
+            <div class="settings-info-row">
+              <span class="settings-info-label">Security Headers</span>
+              <span style="font-size:12px;color:var(--green);font-weight:600">Aktiv (Helmet)</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
