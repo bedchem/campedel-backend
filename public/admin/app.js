@@ -766,6 +766,26 @@ async function doImport() {
   } catch (e) { statusEl.textContent = '✗ ' + e.message; statusEl.className = 'import-status err'; }
 }
 
+async function doExport(type) {
+  try {
+    const res = await apiFetch(`/api/${type}`);
+    // Die Import-Funktionen erwarten das Format { sections: [...] }
+    const exportData = { sections: res };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `campedel-${type}-export-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('Export erfolgreich heruntergeladen', 'ok');
+  } catch (e) {
+    toast('Fehler beim Export: ' + e.message, 'err');
+  }
+}
+
 // ── Section Modal ────────────────────────────────────────────
 function openSectionModal(type) {
   sectionCtx = { type };
