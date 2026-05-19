@@ -22,7 +22,7 @@ RUN npm install --production
 COPY . .
 
 # Data directory for SQLite DB, uploads, and cloudflared config
-RUN mkdir -p /app/data/uploads
+RUN mkdir -p /app/data/uploads && chmod +x /app/docker-entrypoint.sh
 
 ENV PORT=3002
 ENV UPLOAD_DIR=/app/data/uploads
@@ -32,4 +32,4 @@ ENV HOME=/app/data
 
 EXPOSE 3002
 
-CMD ["node", "--experimental-sqlite", "server.js"]
+CMD ["/app/docker-entrypoint.sh"]

@@ -2,7 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { execSync, spawn } = require('child_process');
+const { execSync, spawn } = require('child_process'); // spawn used for cloudflared login
 const router = express.Router();
 const { verifyToken } = require('./auth');
 
@@ -25,9 +25,8 @@ const LOG_PATH   = path.join(CF_HOME, 'tunnel.log');
 const STATE_PATH = path.join(DATA_DIR, 'cloudflared-state.json');
 const QUICK_LOG  = path.join(DATA_DIR, 'cf.log');
 
-let _loginProc  = null;
-let _loginUrl   = null;
-let _tunnelProc = null;
+let _loginProc = null;
+let _loginUrl  = null;
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
@@ -51,7 +50,6 @@ function cfBin() {
 }
 
 function cfRunning() {
-  if (_tunnelProc && _tunnelProc.exitCode === null) return true;
   try { execSync('pgrep -x cloudflared', { stdio: 'pipe' }); return true; } catch {}
   try {
     return execSync('systemctl is-active cloudflared 2>/dev/null', {
@@ -204,9 +202,8 @@ router.post('/configure', requireAuth, (req, res) => {
       tunnelId, tunnelName, hostname, dnsOk,
     });
 
-    // Kill quick tunnel, start named tunnel
-    _killCurrent();
-    setTimeout(() => _startTunnel(bin), 1500);
+        // Kill cloudflared — entrypoint loop restarts it with the new named tunnel config
+    _restartTunnel();
 
     res.json({ ok: true, state, dnsOk });
   } catch (e) {
@@ -236,9 +233,8 @@ router.post('/reconfigure', requireAuth, (req, res) => {
 
     const newState = writeState({ hostname, dnsOk });
 
-    _killCurrent();
-    try { execSync('systemctl restart cloudflared 2>/dev/null', { shell: true, timeout: 15000 }); } catch {}
-    if (!cfRunning()) setTimeout(() => _startTunnel(bin), 1500);
+    // Kill cloudflared — entrypoint loop restarts it with the updated config
+    _restartTunnel();
 
     res.json({ ok: true, state: newState, dnsOk });
   } catch (e) {
@@ -246,59 +242,12 @@ router.post('/reconfigure', requireAuth, (req, res) => {
   }
 });
 
-// ── Internal tunnel management ───────────────────────────────────────
-
-function _killCurrent() {
-  if (_tunnelProc && _tunnelProc.exitCode === null) {
-    try { _tunnelProc.kill('SIGTERM'); } catch {}
-    _tunnelProc = null;
-  }
+// ── Tunnel restart ────────────────────────────────────────────────────
+// The docker-entrypoint.sh loop manages the actual process.
+// Killing cloudflared here causes the loop to restart it automatically
+// (picks up new config.yml on restart, waits 5s).
+function _restartTunnel() {
+  try { execSync('pkill -x cloudflared 2>/dev/null', { shell: true }); } catch {}
 }
-
-function _startTunnel(bin) {
-  if (_tunnelProc && _tunnelProc.exitCode === null) return;
-  // Try systemd first (Linux server installs)
-  try {
-    execSync('systemctl start cloudflared 2>/dev/null', { shell: true, timeout: 10000 });
-    return;
-  } catch {}
-  // Spawn named tunnel process
-  try { fs.mkdirSync(path.dirname(LOG_PATH), { recursive: true }); } catch {}
-  const logFd = (() => { try { return fs.openSync(LOG_PATH, 'a'); } catch { return 'ignore'; } })();
-  _tunnelProc = spawn(bin, ['tunnel', '--config', CONFIG_PATH, 'run'], {
-    detached: true,
-    stdio: ['ignore', logFd, logFd],
-    env: process.env,
-  });
-  _tunnelProc.unref();
-}
-
-function _startQuickTunnel(bin) {
-  if (_tunnelProc && _tunnelProc.exitCode === null) return;
-  const port = process.env.PORT || 3002;
-  try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch {}
-  const logFd = (() => { try { return fs.openSync(QUICK_LOG, 'a'); } catch { return 'ignore'; } })();
-  _tunnelProc = spawn(bin, ['tunnel', '--no-autoupdate', '--url', `http://localhost:${port}`], {
-    detached: true,
-    stdio: ['ignore', logFd, logFd],
-    env: process.env,
-  });
-  _tunnelProc.unref();
-}
-
-// Auto-start on module load
-(function autoStart() {
-  const state = readState();
-  const bin = cfBin();
-  if (!bin) return;
-  if (cfRunning()) return;
-  setTimeout(() => {
-    if (state?.configured && fs.existsSync(CONFIG_PATH) && fs.existsSync(CERT_PATH)) {
-      _startTunnel(bin);
-    } else {
-      _startQuickTunnel(bin);
-    }
-  }, 4000);
-})();
 
 module.exports = router;
