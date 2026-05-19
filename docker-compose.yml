@@ -33,17 +33,21 @@ services:
     command:
       - -c
       - |
-        if [ -n "$TUNNEL_TOKEN" ]; then
-          exec cloudflared tunnel --no-autoupdate run --token "$TUNNEL_TOKEN"
-        elif [ -f /data/.cloudflared/config.yml ] && [ -f /data/.cloudflared/cert.pem ]; then
-          exec cloudflared tunnel --no-autoupdate --config /data/.cloudflared/config.yml run
-        else
-          exec cloudflared tunnel --no-autoupdate --url http://campedel-backend:3002
-        fi
+        while true; do
+          if [ -n "$TUNNEL_TOKEN" ]; then
+            cloudflared tunnel --no-autoupdate run --token "$TUNNEL_TOKEN"
+          elif [ -f /data/.cloudflared/cert.pem ]; then
+            cloudflared tunnel --no-autoupdate run "${TUNNEL_NAME:-campedel}"
+          else
+            cloudflared tunnel --no-autoupdate --url http://campedel-backend:3002
+          fi
+          echo "cloudflared exited, restarting in 5s..."
+          sleep 5
+        done
     environment:
       HOME: /data
       TUNNEL_TOKEN: ${TUNNEL_TOKEN:-}
-      # Quick tunnel log — so the admin dashboard can read the trycloudflare.com URL
+      TUNNEL_NAME: ${TUNNEL_NAME:-campedel}
       TUNNEL_LOGFILE: /data/cf.log
     volumes:
       - campedel-data:/data
