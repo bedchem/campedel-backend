@@ -110,8 +110,8 @@ router.post('/wines', (req, res) => {
     'INSERT OR REPLACE INTO wine_sections (id,category,sort_order) VALUES (?,?,?)'
   );
   const insertItem = db.prepare(
-    `INSERT OR REPLACE INTO wine_items (id,section_id,name,winery,region,doc,dryness,grapes,description_de,description_it,price_bottle,price_glass,price_carafe,image_url,sort_order)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+    `INSERT OR REPLACE INTO wine_items (id,section_id,name,winery,region,doc,dryness,grapes,description_de,description_it,description_en,price_bottle,price_glass,price_carafe,image_url,sort_order)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
   );
 
   let sectionCount = 0, itemCount = 0;
@@ -129,7 +129,7 @@ router.post('/wines', (req, res) => {
           wine.name || '', wine.winery || '', wine.region || '',
           wine.doc || '', wine.dryness || '',
           JSON.stringify(wine.grapes || []),
-          desc.de || '', desc.it || '',
+          desc.de || '', desc.it || '', desc.en || '',
           prices.bottle ?? null, prices.glass ?? null, prices.carafe ?? null,
           wine.imageUrl || null, wi
         );
