@@ -8,15 +8,15 @@
   --surface: #ffffff;
   --surface2: #f4f1ec;
   --border: rgba(0,0,0,0.08);
-  --accent: #f5c842;
-  --accent-dark: #e0b030;
-  --accent-dim: rgba(245,200,66,0.15);
+  --accent: #7ea13b;
+  --accent-dark: #63852a;
+  --accent-dim: rgba(126,161,59,0.15);
   --green: #22c55e;
   --red: #ef4444;
   --text: #1a1a1a;
   --text2: #6b6b6b;
   --text3: #aaa;
-  --sidebar-w: 72px;
+  --sidebar-w: 80px;
   --radius: 12px;
   --shadow: 0 4px 24px rgba(0,0,0,0.10);
   --shadow-lg: 0 8px 40px rgba(0,0,0,0.14);
@@ -85,7 +85,7 @@ html, body {
   gap: 2px;
   flex: 1;
   position: relative;
-  width: 52px;
+  width: 60px;
 }
 
 /* Sliding pill indicator */
@@ -93,7 +93,7 @@ html, body {
   position: absolute;
   left: -4px;
   width: 4px; height: 32px;
-  background: var(--accent);
+  background: #1a1a1a;
   border-radius: 0 4px 4px 0;
   transition: top 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   top: 60px;
@@ -101,8 +101,8 @@ html, body {
 
 /* Sidebar top logo */
 .sidebar-logo {
-  width: 36px; height: 36px;
-  background: var(--accent);
+  width: 44px; height: 44px;
+  background: #1a1a1a;
   border-radius: 11px;
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 12px;
@@ -120,7 +120,7 @@ html, body {
 /* Nav item */
 .nav-item {
   position: relative;
-  width: 44px; height: 44px;
+  width: 50px; height: 50px;
   border-radius: 13px;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: background 0.18s; user-select: none;
@@ -261,15 +261,19 @@ html, body {
 
 /* ── Dashboard ── */
 .dash-welcome {
-  background: var(--surface);
+  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../img/image.jpeg') center/cover no-repeat; /* Fallback before JS kicks in */
   border-radius: 16px;
-  padding: 24px 26px;
+  padding: 40px 32px;
+  min-height: 180px;
+  width: 50%;
+  margin: 0;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  color: #fff;
 }
 
-.dash-welcome-title { font-size: 20px; font-weight: 800; }
-.dash-welcome-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+.dash-welcome-title { font-size: 22px; font-weight: 800; color: #fff; }
+.dash-welcome-sub { font-size: 13px; color: rgba(255,255,255,0.85); margin-top: 3px; }
 
 .dash-grid {
   display: grid;
@@ -284,16 +288,7 @@ html, body {
   display: flex; flex-direction: column; gap: 8px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   position: relative; overflow: hidden;
-  transition: transform 0.18s, box-shadow 0.18s;
   cursor: default;
-}
-
-.dash-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-
-.dash-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: var(--accent-color, var(--accent));
-  border-radius: 16px 16px 0 0;
 }
 
 .dash-card.blue   { --accent-color: #6366f1; }
@@ -421,12 +416,12 @@ html, body {
 }
 
 .data-table td {
-  padding: 10px 14px; border-bottom: 1px solid var(--border);
+  padding: 10px 14px; border-bottom: 1px dashed var(--border);
   vertical-align: middle; color: var(--text); font-size: 13.5px;
 }
 
 .data-table tr:last-child td { border-bottom: none; }
-.data-table tr:hover td { background: var(--surface2); }
+.data-table tr:hover td { background: #faf9f7; }
 
 /* ── Item cell ── */
 .item-cell { display: flex; align-items: center; gap: 10px; }

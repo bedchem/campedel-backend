@@ -124,7 +124,9 @@ function showPage(page, navEl) {
   }
   document.getElementById('page-title').textContent = PAGE_TITLES[page] || page;
   if (page === 'users') loadUsers();
-  if (page === 'dashboard') loadDashboard();
+  if (page === 'dashboard') {
+    loadDashboard();
+  }
   if (page === 'settings') loadSettings();
 }
 
@@ -134,6 +136,13 @@ async function loadAll() {
 }
 
 async function loadDashboard() {
+  const images = ['image.jpeg', 'image2.jpg', 'image3.jpg', 'image4.jpg'];
+  const randomImg = images[Math.floor(Math.random() * images.length)];
+  const dashWelcome = document.querySelector('.dash-welcome');
+  if (dashWelcome) {
+    dashWelcome.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../img/${randomImg}') center/cover no-repeat`;
+  }
+  
   try {
     const stats = await apiFetch('/api/stats');
     renderDashboard(stats);
@@ -263,7 +272,7 @@ function renderMenuTable() {
     return `<tr>
       <td><div class="item-cell">
         ${item.image_url ? `<img src="${item.image_url}" class="thumb">` : `<div class="thumb-placeholder"><svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>`}
-        <div><div class="item-name">${esc(item.name_de)}</div><div class="item-sub">${esc(item.name_it||'')}</div></div>
+        <div><div class="item-name">${esc(item.name_de)}</div></div>
       </div></td>
       <td><span class="tag">${esc(section?.category_key||item.section_id)}</span></td>
       <td class="price">€ ${Number(item.price).toFixed(2)}</td>
@@ -293,9 +302,8 @@ function renderDrinksTable() {
     return `<tr>
       <td><div class="item-cell">
         ${item.image_url ? `<img src="${item.image_url}" class="thumb">` : `<div class="thumb-placeholder"><svg viewBox="0 0 24 24"><path d="M8 2h8l1 7H7L8 2Z"/><path d="M7 9c0 5.5 3 9 5 9s5-3.5 5-9"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></div>`}
-        <div><div class="item-name">${esc(item.name_de)}</div><div class="item-sub">${esc(item.name_en||'')}</div></div>
+        <div><div class="item-name">${esc(item.name_de)}</div></div>
       </div></td>
-      <td style="color:var(--text2)">${esc(item.name_it||'')}</td>
       <td><span class="tag">${esc(section?.category_key||item.section_id)}</span></td>
       <td class="price" style="font-size:12px">${priceStr}</td>
       <td><div class="btn-actions">

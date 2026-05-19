@@ -57,6 +57,9 @@ app.use('/uploads', express.static(path.resolve(UPLOAD_DIR)));
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html')));
 
+// Serve other public assets (like /img)
+app.use('/img', express.static(path.join(__dirname, 'public', 'img')));
+
 // API routes
 app.use('/api/auth', authLimiter, require('./routes/auth'));
 app.use('/api/menu', require('./routes/menu'));
