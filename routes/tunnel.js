@@ -50,6 +50,15 @@ function cfBin() {
 }
 
 function cfRunning() {
+  // Docker sidecar: check via socket
+  try {
+    const out = execSync(
+      'curl -sf --unix-socket /var/run/docker.sock "http://localhost/containers/campedel-cloudflared/json"',
+      { shell: true, encoding: 'utf8', timeout: 3000 }
+    );
+    if (JSON.parse(out)?.State?.Running) return true;
+  } catch {}
+  // Host-based fallback
   try { execSync('pgrep -x cloudflared', { stdio: 'pipe' }); return true; } catch {}
   try {
     return execSync('systemctl is-active cloudflared 2>/dev/null', {
@@ -242,11 +251,19 @@ router.post('/reconfigure', requireAuth, (req, res) => {
   }
 });
 
-// ── Tunnel restart ────────────────────────────────────────────────────
-// The docker-entrypoint.sh loop manages the actual process.
-// Killing cloudflared here causes the loop to restart it automatically
-// (picks up new config.yml on restart, waits 5s).
+// ── Tunnel restart ─────────────────────────────────────────────────────
+// Restart the cloudflared sidecar via Docker socket API.
+// Docker (restart: always) immediately brings it back up with the new config.
 function _restartTunnel() {
+  // Docker socket API (primary — used when running in Docker Compose)
+  try {
+    execSync(
+      'curl -sf -X POST --unix-socket /var/run/docker.sock "http://localhost/containers/campedel-cloudflared/restart?t=3"',
+      { shell: true, timeout: 10000 }
+    );
+    return;
+  } catch {}
+  // Fallback: pkill (host-based deployments, no Docker socket)
   try { execSync('pkill -x cloudflared 2>/dev/null', { shell: true }); } catch {}
 }
 
