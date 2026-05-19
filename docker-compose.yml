@@ -32,13 +32,16 @@ services:
     command:
       - -c
       - |
-        if [ -f /data/.cloudflared/config.yml ] && [ -f /data/.cloudflared/cert.pem ]; then
+        if [ -n "$TUNNEL_TOKEN" ]; then
+          exec cloudflared tunnel --no-autoupdate run --token "$TUNNEL_TOKEN"
+        elif [ -f /data/.cloudflared/config.yml ] && [ -f /data/.cloudflared/cert.pem ]; then
           exec cloudflared tunnel --no-autoupdate --config /data/.cloudflared/config.yml run
         else
           exec cloudflared tunnel --no-autoupdate --url http://campedel-backend:3002
         fi
     environment:
       HOME: /data
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-}
       # Quick tunnel log — so the admin dashboard can read the trycloudflare.com URL
       TUNNEL_LOGFILE: /data/cf.log
     volumes:
