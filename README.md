@@ -31,7 +31,7 @@ cp .env.example .env
 Dann `.env` bearbeiten:
 
 ```env
-PORT=3001
+PORT=3002
 ADMIN_PASSWORD=dein-sicheres-passwort
 SECRET_SALT=ein-langer-random-key
 BASE_URL=https://deine-domain.com
@@ -48,12 +48,12 @@ docker compose up -d
 ```
 
 Das startet:
-- `campedel-backend` — API + Admin Dashboard auf Port 3001
+- `campedel-backend` — API + Admin Dashboard auf Port 3002
 - `campedel-cloudflared` — Cloudflare Tunnel (Quick Tunnel, kein Account nötig)
 
 ### 4. Admin Dashboard öffnen
 
-Lokal: [http://localhost:3001/admin](http://localhost:3001/admin)
+Lokal: [http://localhost:3002/admin](http://localhost:3002/admin)
 
 Standard-Login:
 - **Benutzername:** `admin`
@@ -91,7 +91,7 @@ npm run dev   # mit Nodemon (Hot Reload)
 npm start     # ohne Hot Reload
 ```
 
-Server läuft auf [http://localhost:3001](http://localhost:3001)
+Server läuft auf [http://localhost:3002](http://localhost:3002)
 
 ---
 

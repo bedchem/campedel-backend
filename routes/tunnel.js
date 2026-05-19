@@ -185,7 +185,7 @@ router.post('/configure', requireAuth, (req, res) => {
 
     // Write config.yml
     const credsFile = path.join(CF_HOME, `${tunnelId}.json`);
-    const port = process.env.PORT || 3001;
+    const port = process.env.PORT || 3002;
     fs.writeFileSync(CONFIG_PATH,
       `tunnel: ${tunnelId}\ncredentials-file: ${credsFile}\nlogfile: ${LOG_PATH}\n\n` +
       `ingress:\n  - hostname: ${hostname}\n    service: http://localhost:${port}\n` +
@@ -275,7 +275,7 @@ function _startTunnel(bin) {
 
 function _startQuickTunnel(bin) {
   if (_tunnelProc && _tunnelProc.exitCode === null) return;
-  const port = process.env.PORT || 3001;
+  const port = process.env.PORT || 3002;
   try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch {}
   const logFd = (() => { try { return fs.openSync(QUICK_LOG, 'a'); } catch { return 'ignore'; } })();
   _tunnelProc = spawn(bin, ['tunnel', '--no-autoupdate', '--url', `http://localhost:${port}`], {

@@ -77,7 +77,7 @@ const drinksData = {
 
 const data = JSON.stringify(drinksData);
 const options = {
-  hostname: 'localhost', port: 3001,
+  hostname: 'localhost', port: 3002,
   path: '/api/import/drinks', method: 'POST',
   headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) },
 };

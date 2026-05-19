@@ -16,7 +16,7 @@ const data = fs.readFileSync(filePath, 'utf8');
 
 const options = {
   hostname: 'localhost',
-  port: process.env.PORT || 3001,
+  port: process.env.PORT || 3002,
   path: `/api/import/${type}`,
   method: 'POST',
   headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) },

@@ -33,7 +33,7 @@ router.post('/', upload.single('image'), async (req, res) => {
     .webp({ quality: 82 })
     .toFile(outPath);
 
-  const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3001}`;
+  const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3002}`;
   res.json({ url: `${baseUrl}/uploads/${filename}`, filename });
 });
 

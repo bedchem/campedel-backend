@@ -24,12 +24,12 @@ COPY . .
 # Data directory for SQLite DB, uploads, and cloudflared config
 RUN mkdir -p /app/data/uploads
 
-ENV PORT=3001
+ENV PORT=3002
 ENV UPLOAD_DIR=/app/data/uploads
 ENV BASE_URL=https://api.campedel.pokyh.com
 # HOME → cloudflared stores cert.pem and config in /app/data/.cloudflared (persisted on volume)
 ENV HOME=/app/data
 
-EXPOSE 3001
+EXPOSE 3002
 
 CMD ["node", "--experimental-sqlite", "server.js"]
