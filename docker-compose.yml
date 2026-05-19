@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   campedel-backend:
     build: .
@@ -25,10 +23,11 @@ services:
       start_period: 20s
 
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.cloudflared
     container_name: campedel-cloudflared
     restart: always          # always restart — permanent tunnel
-    user: root               # needed to read files written by backend (root)
     entrypoint: /bin/sh
     command:
       - -c
@@ -36,10 +35,12 @@ services:
         if [ -f /data/.cloudflared/config.yml ] && [ -f /data/.cloudflared/cert.pem ]; then
           exec cloudflared tunnel --no-autoupdate --config /data/.cloudflared/config.yml run
         else
-          exec cloudflared tunnel --no-autoupdate --url http://campedel-backend:3002 --logfile /data/cf.log
+          exec cloudflared tunnel --no-autoupdate --url http://campedel-backend:3002
         fi
     environment:
       HOME: /data
+      # Quick tunnel log — so the admin dashboard can read the trycloudflare.com URL
+      TUNNEL_LOGFILE: /data/cf.log
     volumes:
       - campedel-data:/data
     # No depends_on → starts immediately with docker compose up (fast!)
