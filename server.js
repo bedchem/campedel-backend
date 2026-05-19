@@ -57,8 +57,9 @@ app.use('/uploads', express.static(path.resolve(UPLOAD_DIR)));
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html')));
 
-// Serve other public assets (like /img)
+// Serve other public assets (like /img and /favicon)
 app.use('/img', express.static(path.join(__dirname, 'public', 'img')));
+app.use('/favicon', express.static(path.join(__dirname, 'public', 'favicon')));
 
 // API routes
 app.use('/api/auth', authLimiter, require('./routes/auth'));
