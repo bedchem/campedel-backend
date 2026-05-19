@@ -33,7 +33,10 @@ router.post('/', upload.single('image'), async (req, res) => {
     .webp({ quality: 82 })
     .toFile(outPath);
 
-  const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3002}`;
+  // Dynamisch Basis-URL anhand der Request-Header ermitteln (funktioniert auch hinter Cloudflare-Tunnel)
+  const host = req.get('x-forwarded-host') || req.get('host');
+  const protocol = req.get('x-forwarded-proto') || req.protocol;
+  const baseUrl = `${protocol}://${host}`;
   res.json({ url: `${baseUrl}/uploads/${filename}`, filename });
 });
 
