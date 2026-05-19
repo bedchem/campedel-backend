@@ -11,6 +11,7 @@ services:
       PORT: "3002"
       UPLOAD_DIR: /app/data/uploads
       HOME: /app/data
+      CF_SERVICE_HOST: campedel-backend
     volumes:
       - campedel-data:/app/data
       # Docker socket → backend can restart the cloudflared container after tunnel config

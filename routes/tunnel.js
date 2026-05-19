@@ -193,9 +193,10 @@ router.post('/configure', requireAuth, (req, res) => {
     // Write config.yml
     const credsFile = path.join(CF_HOME, `${tunnelId}.json`);
     const port = process.env.PORT || 3002;
+    const serviceHost = process.env.CF_SERVICE_HOST || 'campedel-backend';
     fs.writeFileSync(CONFIG_PATH,
       `tunnel: ${tunnelId}\ncredentials-file: ${credsFile}\nlogfile: ${LOG_PATH}\n\n` +
-      `ingress:\n  - hostname: ${hostname}\n    service: http://localhost:${port}\n` +
+      `ingress:\n  - hostname: ${hostname}\n    service: http://${serviceHost}:${port}\n` +
       `  - service: http_status:404\n`
     );
 
