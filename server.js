@@ -23,7 +23,7 @@ app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
   crossOriginOpenerPolicy: false,
-  crossOriginResourcePolicy: false
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
 // Rate limiting
@@ -64,8 +64,7 @@ if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 app.use('/uploads', express.static(path.resolve(UPLOAD_DIR), {
   maxAge: '7d',
   setHeaders: (res) => {
-    res.removeHeader?.('Cross-Origin-Resource-Policy');
-    res.removeHeader?.('Cross-Origin-Embedder-Policy');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     res.setHeader('Access-Control-Allow-Origin', '*');
   }
 }));
