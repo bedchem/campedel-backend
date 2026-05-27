@@ -9,6 +9,15 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+
+// CORS FIRST
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+}));
+
+app.options('*', cors());
+
 // Security headers (CSP disabled so admin dashboard JS works)
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -46,7 +55,6 @@ const uploadLimiter = rateLimit({
 app.use(globalLimiter);
 
 // Middleware
-app.use(cors({ origin: '*' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
