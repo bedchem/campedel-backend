@@ -64,7 +64,9 @@ if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 app.use('/uploads', express.static(path.resolve(UPLOAD_DIR), {
   maxAge: '7d',
   setHeaders: (res) => {
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.removeHeader?.('Cross-Origin-Resource-Policy');
+    res.removeHeader?.('Cross-Origin-Embedder-Policy');
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
 }));
 
